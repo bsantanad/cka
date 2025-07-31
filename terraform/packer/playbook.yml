@@ -1,0 +1,25 @@
+---
+- name: 'setup kube stuff'
+  hosts: default
+  become: true # be root
+
+  tasks:
+    - name: initial pause to let ubuntu finish unattended updates
+      # ubuntu will lock apt for this
+      pause:
+        minutes: 1
+
+    - name: setup user 'marx'
+      user:
+        name: marx
+        shell: /bin/bash
+        groups: sudo
+
+    # think you might need to copy the key after the first boot.
+    - name: create 'marx' .ssh directory
+      file:
+        path: /home/marx/.ssh
+        state: directory
+        owner: marx
+        group: marx
+        mode: '0700'

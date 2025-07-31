@@ -1,0 +1,48 @@
+---
+- name: 'provision image'
+  hosts: default
+  become: true # be root
+
+  tasks:
+    - name: initial pause to let ubuntu finish unattended updates
+    # ubuntu will lock apt for this
+    pause:
+        minutes: 1
+
+    - name: add hashicorp key
+    apt_key:
+      url: https://apt.releases.hashicorp.com/gpg
+      state: present
+
+    - name: add hashicorp repo
+    apt_repository:
+      repo: deb blabla
+      state: present
+
+    - name: install packages
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: true
+    loop:
+      - nginx
+      - zsh
+      - terraform
+      - python3-venv
+
+    - name: add 'luzhin' user
+    user:
+      name: luzhin
+      shell: /bin/bash
+      groups: sudo
+
+    - name: create 'luzhin' .ssh directory
+    file:
+      path: /home/luzhin/.ssh
+      state: directory
+      owner: luzhin
+      group: luzhin
+      mode: '0700'
+
+
+
