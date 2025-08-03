@@ -23,3 +23,54 @@
         owner: marx
         group: marx
         mode: '0700'
+
+    - name: open k8s ports
+      command: "ufw allow {{ item }}"
+      loop:
+        - "22/tcp" # ssh
+        - "6443/tcp" # kube api server
+        - "2379:2380/tcp" # etcd server
+        - "10250/tcp" # kubelet api
+        - "10259/tcp" # kube scheduler
+        - "10257/tcp" # kube control manager
+        - "10256/tcp" # kube-proxy
+        - "30000:32767/tcp" # node port
+        - "30000:32767/udp" # node port
+
+    - name: enable ufw rules
+      command: ufw --force enable
+
+    - name: disable swap
+      # know that is is only tmp and if we reboot the OS will turn this back
+      # on, but probably enough for this example
+      command: swapoff -a
+
+    - name: Install a base packages
+      apt:
+        pkg:
+        # maybe some of this not needed
+        - containerd
+        - apt-transport-https
+        - ca-certificates
+        - git
+        - vim
+
+    - name: add an Apt signing key, uses whichever key is at the URL
+      apt_key:
+        url: 'https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key'
+        state: present
+        keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add k8s repository into sources list
+      apt_repository:
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /"
+        state: present
+        filename: kubernetes
+
+    - name: Install a kubeadm
+      apt:
+        pkg:
+        - kubelet
+        - kubeadm
+        - kubectl
