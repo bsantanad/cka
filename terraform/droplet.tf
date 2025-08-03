@@ -8,6 +8,7 @@ terraform {
 }
 
 variable "do_token" {}
+variable "ssh_public_key_path" {}
 
 provider "digitalocean" {
   token = var.do_token
@@ -21,7 +22,7 @@ data "digitalocean_droplet_snapshot" "kube-snapshot" {
 
 resource "digitalocean_ssh_key" "default" {
   name       = "Terraform Example"
-  public_key = file("~/.ssh/some-cool-path.pub")
+  public_key = file(var.ssh_public_key_path)
 }
 
 resource "digitalocean_droplet" "control-plane" {
