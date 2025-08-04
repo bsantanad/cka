@@ -37,6 +37,11 @@
         - "30000:32767/tcp" # node port
         - "30000:32767/udp" # node port
 
+    - name: open mosh ports
+      command: "ufw allow {{ item }}"
+      loop:
+        - "60000:61000/tcp"
+
     - name: enable ufw rules
       command: ufw --force enable
 
@@ -44,6 +49,9 @@
       # know that is is only tmp and if we reboot the OS will turn this back
       # on, but probably enough for this example
       command: swapoff -a
+
+    - name: enable ip_forward
+      command: echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
 
     - name: Install a base packages
       apt:
@@ -54,6 +62,9 @@
         - ca-certificates
         - git
         - vim
+        - net-tools
+        - mosh
+        - mosh
 
     - name: add an Apt signing key, uses whichever key is at the URL
       apt_key:
