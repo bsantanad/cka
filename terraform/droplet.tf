@@ -25,11 +25,11 @@ resource "digitalocean_ssh_key" "default" {
   public_key = file(var.ssh_public_key_path)
 }
 
-resource "digitalocean_droplet" "control-plane" {
+resource "digitalocean_droplet" "control_plane" {
   image    = data.digitalocean_droplet_snapshot.kube-snapshot.id
   name     = "control-plane"
   region   = "nyc2"
-  size     = "s-1vcpu-2gb"
+  size     = "s-2vcpu-2gb"
   ssh_keys = [digitalocean_ssh_key.default.fingerprint]
   # the user `marx` comes from the snapshot created with packer
   user_data = <<-EOF
@@ -43,7 +43,7 @@ resource "digitalocean_droplet" "worker" {
   image     = data.digitalocean_droplet_snapshot.kube-snapshot.id
   name      = "worker"
   region    = "nyc2"
-  size      = "s-1vcpu-2gb"
+  size      = "s-2vcpu-2gb"
   ssh_keys  = [digitalocean_ssh_key.default.fingerprint]
   user_data = <<-EOF
               #!/bin/bash
@@ -52,3 +52,10 @@ resource "digitalocean_droplet" "worker" {
               EOF
 }
 
+
+output "droplet_worker_ip_address" {
+  value = digitalocean_droplet.worker.ipv4_address
+}
+output "droplet_control_plane_ip_address" {
+  value = digitalocean_droplet.control_plane.ipv4_address
+}
